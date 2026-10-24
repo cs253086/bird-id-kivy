@@ -1,0 +1,5 @@
+# Desktop development. The Android build uses the list in buildozer.spec.
+kivy==2.3.0
+pillow
+numpy
+tflite-runtime
