@@ -9,19 +9,21 @@ An Android app built with Kivy. Point the camera at a real bird or a picture of 
 | `main.py` | Kivy app entry point. Shows the camera preview and runs identification on the current frame. |
 | `bird_id.kv` | Kivy layout: camera preview, status label, button. |
 | `classifier.py` | Loads a TFLite model and labels, and returns the top matches for an image. |
-| `assets/model.tflite` | Image classifier (not in the repo; see below). |
+| `assets/model.tflite` | iNaturalist bird classifier (MobileNetV2, quantized, 965 species). |
 | `assets/labels.txt` | One species name per line, in the same order as the model's outputs. |
 | `buildozer.spec` | Android build configuration. |
 
-## Adding the model
+## The model
 
-The app expects an image classifier in TFLite format with:
+`assets/model.tflite` and `assets/labels.txt` are copied from `mobilenet_v2_1.0_224_inat_bird_quant.tflite` and `inat_bird_labels.txt` in [google-coral/test_data](https://github.com/google-coral/test_data). Check that repo's license before shipping the app.
+
+The app expects a TFLite image classifier with:
 
 - an input of shape `[1, H, W, 3]` (RGB), float32 scaled to 0–1 or uint8
 - one output score per class
 - `assets/labels.txt` containing exactly one label per output, in order
 
-Put the files at `assets/model.tflite` and `assets/labels.txt`. Without them the app runs and shows "Model not installed".
+To swap in another model, replace both files. Without them the app runs and shows "Model not installed".
 
 ## Running on desktop
 
@@ -30,7 +32,7 @@ pip install -r requirements.txt
 python main.py
 ```
 
-`tflite-runtime` has no wheels for every platform. If it fails to install, use `pip install tensorflow` instead. `classifier.py` falls back to it automatically.
+`classifier.py` uses `ai-edge-litert` if installed, then `tflite-runtime`, then `tensorflow`.
 
 ## Building for Android
 

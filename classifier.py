@@ -10,9 +10,12 @@ LABELS_PATH = os.path.join(BASE_DIR, "assets", "labels.txt")
 
 def load_interpreter(model_path):
     try:
-        from tflite_runtime.interpreter import Interpreter
+        from ai_edge_litert.interpreter import Interpreter
     except ImportError:
-        from tensorflow.lite import Interpreter
+        try:
+            from tflite_runtime.interpreter import Interpreter
+        except ImportError:
+            from tensorflow.lite import Interpreter
 
     interpreter = Interpreter(model_path=model_path)
     interpreter.allocate_tensors()
