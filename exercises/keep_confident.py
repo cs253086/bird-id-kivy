@@ -8,27 +8,18 @@ Example list:
 
     [("Blue Jay", 0.62), ("Steller's Jay", 0.08), ("Gray Jay", 0.25)]
 
-Your job: write keep_confident so it gives back only the birds
-with a score of at least min_score, in the same order.
+The function below is almost finished. It already:
+    - makes an empty list called keep
+    - goes through every bird in results
+    - adds the bird to keep when the if says yes
+    - gives back keep
 
-How to do it, one step at a time:
+Your job: fill in the one blank spot, marked FILL IN.
+Replace the word False with a check that asks:
+"Is the score at least min_score?"
 
-    1. Make an empty list called keep. (Write:  keep = [] )
-    2. Look at each pair in results, one at a time. (Use a for loop.)
-    3. For each pair, check: is its score at least min_score?
-       (Use an if. The score is the second item, so it is pair[1].)
-    4. If yes, add the pair to keep. (Use keep.append(pair) )
-    5. After the loop, give back keep.  (Use return keep )
-
-Here is the same pattern on a different problem, so you can see how
-the parts fit together. This one keeps only the numbers bigger than 5:
-
-    def keep_big(numbers):
-        keep = []
-        for number in numbers:
-            if number > 5:
-                keep.append(number)
-        return keep
+Hint: "at least" means "bigger than or equal to". In Python that is >=.
+The score of a bird is pair[1].
 
 Run this file to check your work:
 
@@ -38,8 +29,12 @@ Run this file to check your work:
 
 
 def keep_confident(results, min_score):
-    # TODO: write your steps here. Right now this gives back nothing.
-    return None
+    keep = []
+    for pair in results:
+        score = pair[1]
+        if False:  # FILL IN: replace False with the check
+            keep.append(pair)
+    return keep
 
 
 if __name__ == "__main__":
