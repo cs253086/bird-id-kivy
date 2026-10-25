@@ -9,6 +9,7 @@ An Android app built with Kivy. Point the camera at a real bird or a picture of 
 | `main.py` | Kivy app entry point. Shows the camera preview and runs identification on the current frame. |
 | `bird_id.kv` | Kivy layout: camera preview, status label, button. |
 | `classifier.py` | Loads a TFLite model and labels, and returns the top matches for an image. |
+| `java/org/example/birdid/BirdClassifier.java` | Android-only TFLite wrapper. Called from Python through pyjnius. |
 | `assets/model.tflite` | iNaturalist bird classifier (MobileNetV2, quantized, 965 species). |
 | `assets/labels.txt` | One species name per line, in the same order as the model's outputs. |
 | `buildozer.spec` | Android build configuration. |
@@ -43,7 +44,16 @@ buildozer android debug
 
 On first use, Buildozer downloads the Android SDK and NDK.
 
-**Open item:** the Android build does not include TFLite. `tflite-runtime` is not available for Android through python-for-android, so on-device inference still needs a recipe or a Java/pyjnius bridge to the TFLite Android library. Until that is added, `classifier.py` will report that no model is loaded on Android.
+The Android build runs the model with the TFLite Java API:
+
+- `buildozer.spec` adds `java/` as source and pulls in `org.tensorflow:tensorflow-lite:2.14.0` through Gradle.
+- `classifier.py` uses `BirdClassifier.java` on Android and the Python interpreter on desktop.
+
+The Java helper compiles against the TFLite 2.14 API, but **it has not been run on a device.** Things to check on the first Android build:
+
+- pyjnius passes the Python `bytes` to the Java `byte[]` argument correctly.
+- Kivy's `platform` reports `android` and the model path resolves inside the app directory.
+- The app shows "Model not installed" only when the model files are missing.
 
 ## Notes
 
