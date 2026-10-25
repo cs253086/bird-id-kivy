@@ -10,6 +10,17 @@ LABELS_PATH = os.path.join(BASE_DIR, "assets", "labels.txt")
 JAVA_CLASSIFIER = "org.example.birdid.BirdClassifier"
 JAVA_THREADS = 4
 BACKGROUND_LABEL = "background"
+MIN_SCORE = 0.2
+
+
+def keep_confident(results, min_score):
+    """Keep the (name, score) pairs whose score is at least min_score."""
+    keep = []
+    for pair in results:
+        score = pair[1]
+        if score >= min_score:
+            keep.append(pair)
+    return keep
 
 
 def load_interpreter(model_path):
@@ -94,8 +105,9 @@ class BirdClassifier:
     def identify(self, image, top_k=3):
         """Return up to top_k (label, score) pairs, best first.
 
-        Returns an empty list when the model's top match is the background
-        class, meaning there is no bird in the image.
+        Only birds scoring at least MIN_SCORE are returned. Returns an empty
+        list when the model's top match is the background class, or when no
+        bird is confident enough.
         """
         if not self.ready:
             raise RuntimeError("No model loaded")
@@ -114,4 +126,5 @@ class BirdClassifier:
             return []
 
         birds = [i for i in ranked if self.labels[i] != BACKGROUND_LABEL]
-        return [(self.labels[i], float(scores[i])) for i in birds[:top_k]]
+        results = [(self.labels[i], float(scores[i])) for i in birds[:top_k]]
+        return keep_confident(results, MIN_SCORE)
