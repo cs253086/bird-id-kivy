@@ -57,18 +57,18 @@ The Java helper compiles against the TFLite 2.14 API, but **it has not been run 
 
 ## Web version (iPad and other browsers)
 
-The `web/` folder is a standalone page. It runs the same model in the browser, using TensorFlow.js TFLite, so it works in Safari on an iPad.
+The `docs/` folder is a standalone page. It runs the same model in the browser, using TensorFlow.js TFLite, so it works in Safari on an iPad.
 
 | File | Purpose |
 | --- | --- |
-| `web/index.html` | Page layout: camera view, status, button. |
-| `web/app.js` | Camera, button, and results. Applies the same rules as `classifier.py`. |
-| `web/worker.js` | Runs the model in a Web Worker, off the main thread. |
-| `web/model.tflite`, `web/labels.txt` | Same model and labels as `assets/`. |
+| `docs/index.html` | Page layout: camera view, status, button. |
+| `docs/app.js` | Camera, button, and results. Applies the same rules as `classifier.py`. |
+| `docs/worker.js` | Runs the model in a Web Worker, off the main thread. |
+| `docs/model.tflite`, `docs/labels.txt` | Same model and labels as `assets/`. |
 
 To use it on an iPad:
 
-- The page must be served over **HTTPS** (or `localhost`). Safari only allows camera access on secure pages. GitHub Pages works if you enable it for this repo and point it at the `web/` folder.
+- The page must be served over **HTTPS** (or `localhost`). Safari only allows camera access on secure pages. GitHub Pages works if you enable it for this repo and point it at the `docs/` folder.
 - Open the page in Safari and allow camera access when asked.
 - The scripts load from jsDelivr, so the first load needs an internet connection.
 
