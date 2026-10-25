@@ -55,6 +55,27 @@ The Java helper compiles against the TFLite 2.14 API, but **it has not been run 
 - Kivy's `platform` reports `android` and the model path resolves inside the app directory.
 - The app shows "Model not installed" only when the model files are missing.
 
+## Web version (iPad and other browsers)
+
+The `web/` folder is a standalone page. It runs the same model in the browser, using TensorFlow.js TFLite, so it works in Safari on an iPad.
+
+| File | Purpose |
+| --- | --- |
+| `web/index.html` | Page layout: camera view, status, button. |
+| `web/app.js` | Camera, button, and results. Applies the same rules as `classifier.py`. |
+| `web/worker.js` | Runs the model in a Web Worker, off the main thread. |
+| `web/model.tflite`, `web/labels.txt` | Same model and labels as `assets/`. |
+
+To use it on an iPad:
+
+- The page must be served over **HTTPS** (or `localhost`). Safari only allows camera access on secure pages. GitHub Pages works if you enable it for this repo and point it at the `web/` folder.
+- Open the page in Safari and allow camera access when asked.
+- The scripts load from jsDelivr, so the first load needs an internet connection.
+
+The web version matches the Python app's results on the sample bird photo: the top match is the same, and the browser's score is 57% against 67% from Python. The difference comes from how the photo is resized. Both versions use a 0.2 minimum score and skip the `background` class.
+
+**Not yet tested on a real iPad.** The page was tested in headless Chromium with the sample photo as the camera feed. The camera, the Web Worker, and the WebAssembly files still need a check on Safari.
+
 ## Notes
 
 - Identification runs on a background thread. The camera frame is copied on the UI thread, and the result is handed back to it with `Clock.schedule_once`. The button is disabled while a run is in progress.
