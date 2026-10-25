@@ -9,6 +9,7 @@ MODEL_PATH = os.path.join(BASE_DIR, "assets", "model.tflite")
 LABELS_PATH = os.path.join(BASE_DIR, "assets", "labels.txt")
 JAVA_CLASSIFIER = "org.example.birdid.BirdClassifier"
 JAVA_THREADS = 4
+BACKGROUND_LABEL = "background"
 
 
 def load_interpreter(model_path):
@@ -91,7 +92,11 @@ class BirdClassifier:
         return self.backend is not None
 
     def identify(self, image, top_k=3):
-        """Return the top_k (label, score) pairs, best first."""
+        """Return up to top_k (label, score) pairs, best first.
+
+        Returns an empty list when the model's top match is the background
+        class, meaning there is no bird in the image.
+        """
         if not self.ready:
             raise RuntimeError("No model loaded")
 
@@ -104,5 +109,9 @@ class BirdClassifier:
                 f"Model has {len(scores)} outputs but labels.txt has {len(self.labels)} lines"
             )
 
-        best = np.argsort(scores)[::-1][:top_k]
-        return [(self.labels[i], float(scores[i])) for i in best]
+        ranked = np.argsort(scores)[::-1]
+        if self.labels[ranked[0]] == BACKGROUND_LABEL:
+            return []
+
+        birds = [i for i in ranked if self.labels[i] != BACKGROUND_LABEL]
+        return [(self.labels[i], float(scores[i])) for i in birds[:top_k]]

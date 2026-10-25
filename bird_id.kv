@@ -19,7 +19,8 @@
         height: dp(96)
 
     Button:
-        text: 'Identify bird'
+        text: 'Identifying...' if root.identifying else 'Identify bird'
+        disabled: root.identifying
         size_hint_y: None
         height: dp(56)
         on_release: root.identify()

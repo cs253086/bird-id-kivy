@@ -57,4 +57,5 @@ The Java helper compiles against the TFLite 2.14 API, but **it has not been run 
 
 ## Notes
 
-- Identification runs on the UI thread, so the app may pause briefly on each press. Moving it to a background thread is the next step if this is noticeable on device.
+- Identification runs on a background thread. The camera frame is copied on the UI thread, and the result is handed back to it with `Clock.schedule_once`. The button is disabled while a run is in progress.
+- The model has a `background` class. When it is the top match, the app shows "No bird found" and never lists `background` as a species.
