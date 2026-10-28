@@ -18,6 +18,8 @@ const captureContext = captureCanvas.getContext("2d", { willReadFrequently: true
 const worker = new Worker("worker.js");
 let labels = [];
 let busy = false;
+let modelReady = false;
+let cameraReady = false;
 
 // Pure function, so it can be tested without a camera or a model.
 function pickBirds(scores, labels, topK = TOP_K, minScore = MIN_SCORE) {
@@ -37,10 +39,15 @@ function showStatus(message) {
   status.textContent = message;
 }
 
+// The button works only when the model and the camera are both ready.
+function updateButton() {
+  button.disabled = busy || !(modelReady && cameraReady);
+  button.textContent = busy ? "Identifying..." : "Identify bird";
+}
+
 function setBusy(value) {
   busy = value;
-  button.disabled = value;
-  button.textContent = value ? "Identifying..." : "Identify bird";
+  updateButton();
 }
 
 function frameToRgb() {
@@ -76,8 +83,11 @@ worker.onmessage = (event) => {
   const message = event.data;
 
   if (message.type === "ready") {
-    showStatus("Point the camera at a bird");
-    button.disabled = false;
+    modelReady = true;
+    if (cameraReady) {
+      showStatus("Point the camera at a bird");
+    }
+    updateButton();
     return;
   }
 
@@ -105,24 +115,41 @@ async function startCamera() {
   });
   video.srcObject = stream;
   await video.play();
+  cameraReady = true;
+  if (modelReady) {
+    showStatus("Point the camera at a bird");
+  }
+  updateButton();
+}
+
+function cameraErrorMessage(error) {
+  if (error.name === "NotAllowedError" || error.name === "SecurityError") {
+    return "Camera access is blocked. Allow camera access for this site, then reload the page.";
+  }
+  if (error.name === "NotFoundError" || error.name === "OverconstrainedError") {
+    return "No camera found on this device.";
+  }
+  return `Could not start the camera: ${error.message}`;
 }
 
 async function main() {
-  showStatus("Loading model...");
-  button.disabled = true;
+  showStatus("Loading model and starting camera...");
+  updateButton();
   button.addEventListener("click", identify);
 
-  try {
-    labels = (await (await fetch("labels.txt")).text())
-      .split("\n")
-      .map((line) => line.trim())
-      .filter((line) => line.length > 0);
+  labels = (await (await fetch("labels.txt")).text())
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
 
-    const modelUrl = new URL("model.tflite", location.href).href;
-    worker.postMessage({ type: "load", url: modelUrl });
+  const modelUrl = new URL("model.tflite", location.href).href;
+  worker.postMessage({ type: "load", url: modelUrl });
+
+  try {
     await startCamera();
   } catch (error) {
-    showStatus(`Could not start: ${error.message}`);
+    showStatus(cameraErrorMessage(error));
+    updateButton();
   }
 }
 
